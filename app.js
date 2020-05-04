@@ -27,6 +27,13 @@ const item2 = new Item({ name: "Hit the + button to add a new item." });
 const item3 = new Item({ name: "<-- check this to mark an item done!" });
 const defaultItems = [item1, item2, item3];
 
+const listSchema = {
+    name: String,
+    items: [itemsSchema],
+};
+
+const List = mongoose.model("List", listSchema);
+
 const day = date.getDate();
 
 app.get("/", function (req, res) {
@@ -75,14 +82,33 @@ app.post("/delete", function (req, res) {
     res.redirect("/");
 });
 
-app.get("/:paramName", function (req, res) {
-    res.render("list", {
-        listTitle:
-            req.params.paramName.charAt(0).toUpperCase() +
-            req.params.paramName.slice(1) +
-            " - " +
-            day,
-        newListItems: defaultItems,
+app.get("/:customListName", function (req, res) {
+    const customListName =
+        req.params.customListName.charAt(0).toUpperCase() +
+        req.params.customListName.slice(1) +
+        " - " +
+        day;
+
+    List.findOne({ name: req.params.customListName }, function (
+        err,
+        foundList
+    ) {
+        if (!err) {
+            if (!foundList) {
+                const list = new List({
+                    name: customListName,
+                    items: defaultItems,
+                });
+
+                list.save();
+                res.redirect("/" + customListName);
+            } else {
+                res.render("list", {
+                    listTitle: foundList.name,
+                    newListItems: foundList.items,
+                });
+            }
+        }
     });
 });
 
