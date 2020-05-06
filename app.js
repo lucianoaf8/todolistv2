@@ -1,5 +1,5 @@
 //jshint esversion:6
-
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -17,7 +17,9 @@ app.use(
 app.use(express.static("public"));
 
 mongoose.connect(
-    "mongodb+srv://admin-luciano:<PWS>@cluster0-jq1iv.mongodb.net/todolistDB",
+    "mongodb+srv://admin-luciano:" +
+        process.env.PASSWORD +
+        "@cluster0-jq1iv.mongodb.net/todolistDB",
     {
         useNewUrlParser: true,
         useUnifiedTopology: true,
